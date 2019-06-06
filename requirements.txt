@@ -1,0 +1,7 @@
+pandas
+networkx
+haversine
+FuzzyWuzzy
+staticmap
+python-telegram-bot
+requests
