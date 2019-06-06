@@ -5,6 +5,7 @@ import csv
 import logging
 import gzip
 import requests
+import os
 from io import BytesIO
 
 import pandas as pd
@@ -14,6 +15,7 @@ from staticmap import StaticMap, Line, CircleMarker
 from fuzzywuzzy import fuzz
 
 import constants as c
+import graph_utilities as gu
 
 
 class Graph:
@@ -28,6 +30,10 @@ class Graph:
 
         # Download the data and process it
         print('Downloading data')
+        # if not os.path.exists(c.CSV_DIR):
+        #     os.makedirs(c.CSV_DIR)
+        # if os.path.exists(c.CSV_URI):
+        #     os.remove(c.CSV_URI)
         # r = requests.get(c.URL)
         # open(c.CSV_URI, 'wb').write(r.content)
 
@@ -60,17 +66,7 @@ class Graph:
         print('Got {ncities} cities'.format(ncities=len(self.coordinates)))
 
         # Create the graph
-        self.G = nx.Graph()
-
-        # Add nodes
-        self.G.add_nodes_from(self.coordinates.keys())
-
-        # Add edges
-        for city_a in self.coordinates.keys():
-            for city_b in self.coordinates.keys():
-                distance = self.get_city_distance(city_a, city_b)
-                if city_a != city_b and distance <= max_dist:
-                    self.G.add_edge(city_a, city_b, weight=distance)
+        self.G = gu.build_graph(self.coordinates, max_dist)
 
         print(
             'Graph created with {nodes} nodes and {edges} edges!\
@@ -78,37 +74,6 @@ class Graph:
                 nodes=len(self.G.nodes),
                 edges=len(self.G.edges)
             )
-        )
-
-    def process_row(self, row):
-        '''
-        Processes a row in the csv
-        '''
-        country, _, city, region, pop, lat, lon = row
-        code = '{city}, {country}; {region}'.format(
-            city=city,
-            country=country,
-            region=region
-        )
-        if pop == '':
-            pop = 0
-        elif '.' in pop:
-            pop = pop.split('.')[0]
-        return code, (float(lat), float(lon)), int(pop)
-
-    def get_distance(self, coordsa, coordsb):
-        '''
-        Returns the distance between points a and b
-        '''
-        return haversine(coordsa, coordsb)
-
-    def get_city_distance(self, citya, cityb):
-        '''
-        Returns the distance between cities a and b
-        '''
-        return self.get_distance(
-            self.coordinates[citya],
-            self.coordinates[cityb]
         )
 
     def get_number_nodes(self):
@@ -134,8 +99,8 @@ class Graph:
         Returs True if the distance between each of the two points in the
         edge and the point coords is lower than dist
         '''
-        dist0 = self.get_distance(self.coordinates[edge[0]], coords)
-        dist1 = self.get_distance(self.coordinates[edge[1]], coords)
+        dist0 = haversine(self.coordinates[edge[0]], coords)
+        dist1 = haversine(self.coordinates[edge[1]], coords)
         return dist0 <= dist and dist1 <= dist
 
     def plotgraph(self, lat, lon, dist):

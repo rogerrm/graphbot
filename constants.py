@@ -3,8 +3,7 @@ Constants for the GraphBot project
 '''
 
 # Graph-related constants
-URL = 'https://github.com/jordi-petit/lp-graphbot-2019/blob/master/dades/' + \
-      'worldcitiespop.csv.gz?raw=true'
+URL = 'https://github.com/jordi-petit/lp-graphbot-2019/blob/master/dades/worldcitiespop.csv.gz?raw=true'
 
 COLUMNS = {
     'Country': 0,
@@ -19,11 +18,17 @@ MIN_POPULATION = 100000
 MAX_DISTANCE = 300
 CIRCLE_SCALE = 15
 
-CSV_URI = 'data/citydata.csv.gz'
+CSV_DIR = 'data/'
+CSV_URI = CSV_DIR + 'citydata.csv.gz'
 
 SOURCE_FAIL = 'Source Fail'
 DEST_FAIL = 'Dest Fail'
 PATH_FAIL = 'Paht Fail'
+
+MAX_USER_DISTANCE = 1000
+MIN_USER_POPULATION = 80000
+
+EARTH_RADIUS = 6371.0
 
 # Bot-related constants
 NOT_STARTED = "The bot is not started! To start using it, use /start"
@@ -66,10 +71,6 @@ population.
 
     Writes the number of connected components in the graph.
 
-- /setcoords ⟨lat⟩ ⟨lon⟩
-
-    Tells the bot to use ⟨lat⟩ ⟨lon⟩ as your current coordinates.
-
 - /plotpop ⟨dist⟩ [[⟨lat⟩ ⟨lon⟩]]
 
     Plots a map of all cities in the graph whose distance with \
@@ -92,6 +93,9 @@ location (they must have been already specified with /setcoords).
     Plots the shortest way to go from `⟨src⟩` to `⟨dst⟩`. Both have to \
 follow the format "city, country", where country refers to the \
 abbreviation (for example, Barcelona would be "Barcelona, es".
+
+- Additionaly, you can send your location and the bot will start using it\
+when needed.
 """.format(
     initial_dist=MAX_DISTANCE,
     initial_pop=MIN_POPULATION
@@ -105,7 +109,7 @@ roger.romero.morral@est.fib.upc.edu
 OK_TEXT = "Ok"
 
 NOT_SPECIFIED_CHOORDS = "If you don't want to specify the coordinates, " + \
-                        "please set your current location with /setcoords"
+                        "please send your current location"
 
 WRONG_ARGS = "You did not pass the arguments in the right way. " + \
              "Please use /help to check the usage of this command."
@@ -117,6 +121,6 @@ NO_CITY = "No cities were found matching the name {city}. Pleas use " + \
 
 NO_ROUTE = "No route was found between the given cities."
 
-INVALID_COORDS = "Please enter valid coordinates."
+TOO_LARGE_DISTANCE = "Please set a distance less than {}".format(MAX_DISTANCE)
 
-LON_LAT_REGEX = r'^\[(\-|)[0-9]*(\.|)[0-9]+ (\-|)[0-9]*(\.|)[0-9]+\]$'
+TOO_LOW_POPULATION = "Please set a population greater than {}".format(MIN_POPULATION)

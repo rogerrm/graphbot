@@ -1,14 +1,11 @@
 '''
 Bot-related code
 '''
-import re
-
 import telegram
-from telegram.ext import Updater
-from telegram.ext import CommandHandler
+from telegram.ext import Updater, CommandHandler, Filters, MessageHandler
 
 import constants as c
-from graph_handler import Graph
+from graph import Graph
 
 
 # Global variables
@@ -88,12 +85,24 @@ def change_graph(bot, update, args):
         bot.send_message(chat_id=update.message.chat_id, text=c.WRONG_ARGS)
         return
 
-    if not (args[0].isdigit() and args[1].isdigit()):
+    try:
+        distance = float(args[0])
+        population = float(args[1])
+
+        if distance > c.MAX_USER_DISTANCE:
+            bot.send_message(chat_id=update.message.chat_id, text=c.TOO_LARGE_DISTANCE)
+            return
+
+        if population < c.MIN_USER_POPULATION:
+            bot.send_message(chat_id=update.message.chat_id, text=c.TOO_LOW_POPULATION)
+            return
+
+        graph = Graph(int(args[0]), int(args[1]))
+        bot.send_message(chat_id=update.message.chat_id, text=c.OK_TEXT)
+
+    except ValueError:
         bot.send_message(chat_id=update.message.chat_id, text=c.WRONG_ARGS)
         return
-
-    graph = Graph(int(args[0]), int(args[1]))
-    bot.send_message(chat_id=update.message.chat_id, text=c.OK_TEXT)
 
 
 @start_first
@@ -129,6 +138,20 @@ def components(bot, update):
     )
 
 
+@start_first
+def where(bot, update, user_data=None):
+    '''
+    Receives the location of the user
+    '''
+    global usercoords
+
+    lat, lon = update.message.location.latitude, update.message.location.longitude
+    print(lat, lon)
+    usercoords = (lat, lon)
+
+    bot.send_message(chat_id=update.message.chat_id, text=c.OK_TEXT)
+
+
 def checkcoords(lat, lon):
     '''
     Checks if given coords are valid
@@ -137,34 +160,6 @@ def checkcoords(lat, lon):
     lon_ok = (lon <= 180) and (lon >= -180)
 
     return lat_ok and lon_ok
-
-
-@start_first
-def setcoords(bot, update, args):
-    '''
-    Sets the user current location
-    '''
-    global usercoords
-
-    try:
-        lat = float(args[0])
-        lon = float(args[1])
-        if checkcoords(lat, lon):
-            usercoords = (lat, lon)
-            bot.send_message(chat_id=update.message.chat_id, text=c.OK_TEXT)
-            return
-        else:
-            bot.send_message(
-                chat_id=update.message.chat_id,
-                text=c.INVALID_COORDS
-            )
-            return
-
-    except ValueError:
-        bot.send_message(
-            chat_id=update.message.chat_id,
-            text=c.WRONG_ARGS
-        )
 
 
 def parse_plot_args(bot, update, args):
@@ -317,7 +312,7 @@ def main():
     dispatcher.add_handler(CommandHandler('nodes', nodes))
     dispatcher.add_handler(CommandHandler('edges', edges))
     dispatcher.add_handler(CommandHandler('components', components))
-    dispatcher.add_handler(CommandHandler('setcoords', setcoords, pass_args=True))
+    dispatcher.add_handler(MessageHandler(Filters.location, where))
     dispatcher.add_handler(CommandHandler('plotpop', plotpop, pass_args=True))
     dispatcher.add_handler(CommandHandler('plotgraph', plotgraph, pass_args=True))
     dispatcher.add_handler(CommandHandler('route', route, pass_args=True))
