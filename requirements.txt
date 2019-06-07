@@ -5,3 +5,4 @@ FuzzyWuzzy
 staticmap
 python-telegram-bot
 requests
+python-Levenshtein

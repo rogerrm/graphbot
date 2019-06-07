@@ -29,7 +29,6 @@ class Graph:
         '''
 
         # Download the data and process it
-        print('Downloading data')
         if not os.path.exists(c.CSV_DIR):
             os.makedirs(c.CSV_DIR)
         if os.path.exists(c.CSV_URI):
@@ -37,7 +36,6 @@ class Graph:
         r = requests.get(c.URL)
         open(c.CSV_URI, 'wb').write(r.content)
 
-        print('Processing data')
         dataframe = pd.read_csv(
             c.CSV_URI,
             usecols=c.COLUMNS.keys(),
@@ -63,18 +61,8 @@ class Graph:
             )
             self.populations[key] = info[c.COLUMNS['Population']]
 
-        print('Got {ncities} cities'.format(ncities=len(self.coordinates)))
-
         # Create the graph
         self.G = gu.build_graph(self.coordinates, max_dist)
-
-        print(
-            'Graph created with {nodes} nodes and {edges} edges!\
-             Start asking me!'.format(
-                nodes=len(self.G.nodes),
-                edges=len(self.G.edges)
-            )
-        )
 
     def get_number_nodes(self):
         '''
@@ -105,8 +93,8 @@ class Graph:
 
     def plotgraph(self, lat, lon, dist):
         '''
-        Plots the graph of the cities that have distance lower than dist
-        from (lat, lon)
+        Returns the plot of the graph of the edges between cities that
+        have distance than dist from (lat, lon)
         '''
         mapa = StaticMap(400, 400)
         some = False
@@ -130,6 +118,10 @@ class Graph:
         return bio
 
     def plotpop(self, lat, lon, dist):
+        '''
+        Returns the plot of the graph of the cities that have distance
+        lower than dist from (lat, lon)
+        '''
         mapa = StaticMap(400, 400)
         some = False
 
@@ -161,6 +153,9 @@ class Graph:
         return bio
 
     def get_most_similar(self, name):
+        '''
+        Returns the most similar city name in G to name
+        '''
         max_sim = -1
         argmax = None
         for city in self.G.nodes:
@@ -172,6 +167,9 @@ class Graph:
             return argmax
 
     def route(self, src, dst):
+        '''
+        Returns the plot of the shortest route between src and dst
+        '''
         real_src = self.get_most_similar(src)
         real_dst = self.get_most_similar(dst)
 

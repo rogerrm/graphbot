@@ -31,7 +31,7 @@ MIN_USER_POPULATION = 80000
 EARTH_RADIUS = 6371.0
 
 # Bot-related constants
-NOT_STARTED = "The bot is not started! To start using it, use /start"
+NOT_STARTED = "You have not started a conversation with the bot! To start using it, use /start"
 
 HELLO_TEXT = "Hello"
 
@@ -116,11 +116,13 @@ WRONG_ARGS = "You did not pass the arguments in the right way. " + \
 
 NO_IMAGE = "No nodes/edges were found satisfying the given conditions."
 
-NO_CITY = "No cities were found matching the name {city}. Pleas use " + \
+NO_CITY = "No cities were found matching the name {city}. Please use " + \
            "/help to check the format in which cities must be given."
 
 NO_ROUTE = "No route was found between the given cities."
 
-TOO_LARGE_DISTANCE = "Please set a distance less than {}".format(MAX_DISTANCE)
+TOO_LARGE_DISTANCE = "Please set a distance less than {}".format(MAX_USER_DISTANCE)
 
-TOO_LOW_POPULATION = "Please set a population greater than {}".format(MIN_POPULATION)
+TOO_LOW_POPULATION = "Please set a population greater than {}".format(MIN_USER_POPULATION)
+
+INVALID_COORDS = "Please give the coords in a valid range: lat in (-90, 90) and lon in (-180, 180)"
