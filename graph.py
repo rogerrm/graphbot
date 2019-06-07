@@ -30,12 +30,12 @@ class Graph:
 
         # Download the data and process it
         print('Downloading data')
-        # if not os.path.exists(c.CSV_DIR):
-        #     os.makedirs(c.CSV_DIR)
-        # if os.path.exists(c.CSV_URI):
-        #     os.remove(c.CSV_URI)
-        # r = requests.get(c.URL)
-        # open(c.CSV_URI, 'wb').write(r.content)
+        if not os.path.exists(c.CSV_DIR):
+            os.makedirs(c.CSV_DIR)
+        if os.path.exists(c.CSV_URI):
+            os.remove(c.CSV_URI)
+        r = requests.get(c.URL)
+        open(c.CSV_URI, 'wb').write(r.content)
 
         print('Processing data')
         dataframe = pd.read_csv(
